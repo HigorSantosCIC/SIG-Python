@@ -1,6 +1,6 @@
 import datetime
 from openpyxl import load_workbook
-wb2 = load_workbook('Pessoas2.xlsx')
+wb2 = load_workbook('Pessoas.xlsx')
 sheet = wb2.active
 born = sheet['E']
 age = sheet['F']
@@ -33,5 +33,5 @@ for ix in imc[1:]:
     ix.value = ui[0]
     ui.pop(0)
 
-wb2.save("Pessoas2.xlsx")   
+wb2.save("Pessoas.xlsx")   
     
