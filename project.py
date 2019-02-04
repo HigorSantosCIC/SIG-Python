@@ -65,6 +65,18 @@ class Exam():
                 )
             )
         )]
+    def getHyp(self):
+        s, d = self.systolic, self.diastolic
+        _str_ = ['Normal (ótimo)', 'Normal', 'Normal (em risco)', 'Hipertensão leve', 'Hipertensão moderada', 'Hipertensão grave']
+        return _str_[5 if s > 180 or d > 110 else (
+            4 if 180 >= s > 160 or 110 >= d > 100 else (
+                3 if 160 >= s > 140 or 100 >= d > 90 else (
+                    2 if 140 >= s > 130 or 90 >= d > 85 else (
+                        1 if 130 >= s > 120 or 85 >= d > 80 else 0
+                    )
+                )
+            )
+        )]
 
 class Patient(Person):
     def __init__(self, first_name, last_name, register, date_birth, genre, date_insurance):
@@ -146,6 +158,7 @@ class Patients():
             'Altura (M)',
             'IMC',
             'Estado nutricional',
+            'Estado de Hipertensão',
             'Tensão arterial sistólica',
             'Tensão arterial distólica',
             'Hemodiálises',
@@ -168,6 +181,7 @@ class Patients():
             ))
         for i, e in enumerate(self.exams):
             imc = e.getIMCstr()
+            hyp = e.getHyp()
             exams.append((
                 i,
                 self.searchPatientID(e.patientRG),
@@ -177,6 +191,7 @@ class Patients():
                 e.height,
                 e.getIMC(),
                 imc,
+                hyp,
                 e.systolic,
                 e.diastolic,
                 e.hemodialysis,
@@ -192,6 +207,56 @@ class Patients():
             else:
                 c.font = Font(bold=True, name='Arial', color='006600')
                 c.fill = PatternFill(fill_type='solid', start_color='ccffcc', end_color='ccffcc')
+            c = exams.cell(column=9, row=i + 2)
+            if 'Normal (ótimo)' in hyp:
+                c.font = Font(bold=True, name='Arial', color='006600')
+                c.fill = PatternFill(fill_type='solid', start_color='ccffcc', end_color='ccffcc')
+            elif 'Normal (em risco)' in hyp:
+                c.font = Font(name='Arial', color='FFF00000')
+            elif 'Hipertensão leve' in hyp:
+                c.font = Font(bold=True, name='Arial', color='FFF00000')
+            elif 'Hipertensão moderada' in hyp:
+                c.font = Font(bold=True, name='Arial', color='FFF00000')
+                c.fill = PatternFill(fill_type='solid', start_color='ffcccc', end_color='ffcccc')
+            elif 'Hipertensão grave' in hyp:
+                c.font = Font(bold=True, name='Arial', color='FFFFFFFF')
+                c.fill = PatternFill(fill_type='solid', start_color='cc0000', end_color='cc0000')
+            c = exams.cell(column=14, row=i + 2)
+            patient = self.searchPatient(e.patientRG)
+            if patient.genre is 'M':
+                if e.hemoglobin < 14:
+                    c.font = Font(bold=True, name='Arial', color='FFF00000')
+                    c.fill = PatternFill(fill_type='solid', start_color='ffcccc', end_color='ffcccc')
+                elif 14 <= e.hemoglobin <= 18:
+                    c.font = Font(bold=True, name='Arial', color='006600')
+                    c.fill = PatternFill(fill_type='solid', start_color='ccffcc', end_color='ccffcc')
+                else:
+                    c.font = Font(bold=True, name='Arial', color='FFFFFFFF')
+                    c.fill = PatternFill(fill_type='solid', start_color='cc0000', end_color='cc0000')
+            else:
+                if e.hemoglobin < 12:
+                    c.font = Font(bold=True, name='Arial', color='FFF00000')
+                    c.fill = PatternFill(fill_type='solid', start_color='ffcccc', end_color='ffcccc')
+                elif 12 <= e.hemoglobin <= 16:
+                    c.font = Font(bold=True, name='Arial', color='006600')
+                    c.fill = PatternFill(fill_type='solid', start_color='ccffcc', end_color='ccffcc')
+                else:
+                    c.font = Font(bold=True, name='Arial', color='FFFFFFFF')
+                    c.fill = PatternFill(fill_type='solid', start_color='cc0000', end_color='cc0000')
+            c = exams.cell(column=15, row=i + 2)
+            if 3.5 <= e.albumin <= 5:
+                c.font = Font(bold=True, name='Arial', color='FFF00000')
+                c.fill = PatternFill(fill_type='solid', start_color='ffcccc', end_color='ffcccc')
+            else:
+                c.font = Font(bold=True, name='Arial', color='006600')
+                c.fill = PatternFill(fill_type='solid', start_color='ccffcc', end_color='ccffcc')
+            c = exams.cell(column=16, row=i + 2)
+            if 2.5 <= e.phosphor <= 4.5:
+                c.font = Font(bold=True, name='Arial', color='FFF00000')
+                c.fill = PatternFill(fill_type='solid', start_color='ffcccc', end_color='ffcccc')
+            else:
+                c.font = Font(bold=True, name='Arial', color='006600')
+                c.fill = PatternFill(fill_type='solid', start_color='ccffcc', end_color='ccffcc')
         exams.append((
             '',
             'MÉDIA',
@@ -201,13 +266,14 @@ class Patients():
             '=MEDIAN(F1:F43)',
             '=MEDIAN(G1:G43)',
             '',
-            '=MEDIAN(I1:I43)',
+            '',
             '=MEDIAN(J1:J43)',
             '=MEDIAN(K1:K43)',
             '=MEDIAN(L1:L43)',
             '=MEDIAN(M1:M43)',
             '=MEDIAN(N1:N43)',
-            '=MEDIAN(O1:O43)'	
+            '=MEDIAN(O1:O43)',
+            '=MEDIAN(P1:P43)'	
         ))
         exams.append((
             '',
@@ -218,13 +284,14 @@ class Patients():
             '=STDEV(F1:F43)',
             '=STDEV(G1:G43)',
             '',
-            '=STDEV(I1:I43)',
+            '',
             '=STDEV(J1:J43)',
             '=STDEV(K1:K43)',
             '=STDEV(L1:L43)',
             '=STDEV(M1:M43)',
             '=STDEV(N1:N43)',
-            '=STDEV(O1:O43)'	
+            '=STDEV(O1:O43)',
+            '=STDEV(P1:P43)'	
         ))
         for cell in exams[1]:
             cell.fill = PatternFill(start_color="aabedd", end_color="aabedd", fill_type = "solid")
